@@ -1,0 +1,242 @@
+/**
+ * Admin CSS for iHumbak WooCommerce Products Manager
+ */
+
+.ihumbak-wpm-wrap {
+    margin: 20px 20px 0 0;
+}
+
+.ihumbak-wpm-wrap h1 {
+    margin-bottom: 20px;
+}
+
+.ihumbak-wpm-wrap h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* Filters Section */
+.ihumbak-filters-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.ihumbak-filters {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1d2327;
+}
+
+.filter-group input[type="text"],
+.filter-group input[type="number"],
+.filter-group select {
+    padding: 6px 8px;
+    min-width: 200px;
+    font-size: 14px;
+}
+
+.filter-group input[type="number"] {
+    min-width: 120px;
+}
+
+/* Bulk Edit Section */
+.ihumbak-bulk-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.bulk-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+/* Loading State */
+.ihumbak-loading {
+    text-align: center;
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+}
+
+.ihumbak-loading .spinner {
+    float: none;
+    margin: 0 auto 10px;
+}
+
+/* Products Table */
+.ihumbak-products-table {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.ihumbak-products-table table {
+    margin-bottom: 0;
+}
+
+.ihumbak-products-table th,
+.ihumbak-products-table td {
+    padding: 10px;
+}
+
+.ihumbak-products-table .column-id {
+    width: 60px;
+}
+
+.ihumbak-products-table .column-name {
+    min-width: 200px;
+}
+
+.ihumbak-products-table .column-sku {
+    width: 120px;
+}
+
+.ihumbak-products-table .column-categories {
+    min-width: 150px;
+}
+
+.ihumbak-products-table .column-regular-price,
+.ihumbak-products-table .column-sale-price,
+.ihumbak-products-table .column-current-price {
+    width: 120px;
+}
+
+.ihumbak-products-table .column-stock {
+    width: 120px;
+}
+
+.ihumbak-products-table .column-actions {
+    width: 100px;
+}
+
+.ihumbak-products-table .price-input {
+    width: 100%;
+    max-width: 100px;
+}
+
+.ihumbak-products-table .stock-instock {
+    color: #008a00;
+    font-weight: 600;
+}
+
+.ihumbak-products-table .stock-outofstock {
+    color: #a00;
+    font-weight: 600;
+}
+
+.ihumbak-products-table .stock-onbackorder {
+    color: #f56e28;
+    font-weight: 600;
+}
+
+/* Pagination */
+.ihumbak-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f6f7f7;
+    border-top: 1px solid #ccd0d4;
+}
+
+.ihumbak-pagination .pagination-info {
+    font-size: 14px;
+    color: #50575e;
+}
+
+/* No Products */
+.ihumbak-no-products {
+    text-align: center;
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    font-size: 16px;
+    color: #50575e;
+}
+
+/* Messages */
+.ihumbak-wpm-wrap .notice {
+    margin: 20px 0;
+    padding: 12px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .ihumbak-filters,
+    .bulk-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group input[type="text"],
+    .filter-group input[type="number"],
+    .filter-group select {
+        min-width: 100%;
+    }
+
+    .ihumbak-products-table {
+        overflow-x: auto;
+    }
+
+    .ihumbak-products-table table {
+        min-width: 800px;
+    }
+}
+
+/* Utility Classes */
+.ihumbak-wpm-wrap .button-small {
+    height: auto;
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.ihumbak-wpm-wrap .small-text {
+    width: 100%;
+    max-width: 100px;
+    padding: 3px 5px;
+    font-size: 13px;
+}
+
+/* Button States */
+.ihumbak-wpm-wrap .button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Table hover effect */
+.ihumbak-products-table tbody tr:hover {
+    background-color: #f6f7f7;
+}
+
+/* Input focus styles */
+.ihumbak-wpm-wrap input[type="text"]:focus,
+.ihumbak-wpm-wrap input[type="number"]:focus,
+.ihumbak-wpm-wrap select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: 2px solid transparent;
+}
