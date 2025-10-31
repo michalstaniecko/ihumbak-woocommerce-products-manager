@@ -189,8 +189,12 @@ class IHumbak_WooCommerce_Products_Manager {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'ihumbak-wpm' ) ) );
         }
 
+        // Sanitize all POST data
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $post_data = array_map( 'sanitize_text_field', wp_unslash( $_POST ) );
+
         $handler = new IHumbak_Products_Handler();
-        $products = $handler->get_products( $_POST );
+        $products = $handler->get_products( $post_data );
 
         wp_send_json_success( $products );
     }
@@ -206,8 +210,13 @@ class IHumbak_WooCommerce_Products_Manager {
         }
 
         $product_id = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
-        $regular_price = isset( $_POST['regular_price'] ) ? sanitize_text_field( $_POST['regular_price'] ) : '';
-        $sale_price = isset( $_POST['sale_price'] ) ? sanitize_text_field( $_POST['sale_price'] ) : '';
+        
+        if ( $product_id <= 0 ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid product ID', 'ihumbak-wpm' ) ) );
+        }
+
+        $regular_price = isset( $_POST['regular_price'] ) ? sanitize_text_field( wp_unslash( $_POST['regular_price'] ) ) : '';
+        $sale_price = isset( $_POST['sale_price'] ) ? sanitize_text_field( wp_unslash( $_POST['sale_price'] ) ) : '';
 
         $handler = new IHumbak_Products_Handler();
         $result = $handler->update_product_prices( $product_id, $regular_price, $sale_price );
@@ -229,10 +238,21 @@ class IHumbak_WooCommerce_Products_Manager {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'ihumbak-wpm' ) ) );
         }
 
-        $filters = isset( $_POST['filters'] ) ? $_POST['filters'] : array();
-        $change_type = isset( $_POST['change_type'] ) ? sanitize_text_field( $_POST['change_type'] ) : 'percentage';
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $filters = isset( $_POST['filters'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['filters'] ) ) : array();
+        $change_type = isset( $_POST['change_type'] ) ? sanitize_text_field( wp_unslash( $_POST['change_type'] ) ) : 'percentage';
         $change_value = isset( $_POST['change_value'] ) ? floatval( $_POST['change_value'] ) : 0;
-        $price_type = isset( $_POST['price_type'] ) ? sanitize_text_field( $_POST['price_type'] ) : 'regular';
+        $price_type = isset( $_POST['price_type'] ) ? sanitize_text_field( wp_unslash( $_POST['price_type'] ) ) : 'regular';
+
+        // Validate change type
+        if ( ! in_array( $change_type, array( 'percentage', 'fixed' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid change type', 'ihumbak-wpm' ) ) );
+        }
+
+        // Validate price type
+        if ( ! in_array( $price_type, array( 'regular', 'sale' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid price type', 'ihumbak-wpm' ) ) );
+        }
 
         $handler = new IHumbak_Products_Handler();
         $result = $handler->bulk_update_prices( $filters, $change_type, $change_value, $price_type );

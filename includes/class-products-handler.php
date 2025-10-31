@@ -16,12 +16,23 @@ class IHumbak_Products_Handler {
      * Get products based on filters
      */
     public function get_products( $args = array() ) {
-        $page = isset( $args['page'] ) ? intval( $args['page'] ) : 1;
-        $per_page = isset( $args['per_page'] ) ? intval( $args['per_page'] ) : 20;
+        $page = isset( $args['page'] ) ? absint( $args['page'] ) : 1;
+        $per_page = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : 20;
+        
+        // Limit per_page to prevent excessive queries
+        if ( $per_page > 100 && $per_page !== -1 ) {
+            $per_page = 100;
+        }
+        
         $search = isset( $args['search'] ) ? sanitize_text_field( $args['search'] ) : '';
-        $category = isset( $args['category'] ) ? intval( $args['category'] ) : 0;
-        $orderby = isset( $args['orderby'] ) ? sanitize_text_field( $args['orderby'] ) : 'title';
-        $order = isset( $args['order'] ) ? sanitize_text_field( $args['order'] ) : 'ASC';
+        $category = isset( $args['category'] ) ? absint( $args['category'] ) : 0;
+        
+        // Validate orderby to prevent SQL injection
+        $allowed_orderby = array( 'title', 'date', 'ID', 'name', 'modified' );
+        $orderby = isset( $args['orderby'] ) && in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'title';
+        
+        // Validate order
+        $order = isset( $args['order'] ) && 'DESC' === strtoupper( $args['order'] ) ? 'DESC' : 'ASC';
 
         // Build query args
         $query_args = array(
@@ -119,14 +130,20 @@ class IHumbak_Products_Handler {
             return false;
         }
 
-        // Update regular price
+        // Validate and sanitize regular price
         if ( '' !== $regular_price ) {
-            $product->set_regular_price( $regular_price );
+            $regular_price = $this->sanitize_price( $regular_price );
+            if ( false !== $regular_price ) {
+                $product->set_regular_price( $regular_price );
+            }
         }
 
-        // Update sale price
+        // Validate and sanitize sale price
         if ( '' !== $sale_price ) {
-            $product->set_sale_price( $sale_price );
+            $sale_price = $this->sanitize_price( $sale_price );
+            if ( false !== $sale_price ) {
+                $product->set_sale_price( $sale_price );
+            }
         } elseif ( '' === $sale_price ) {
             $product->set_sale_price( '' );
         }
@@ -137,9 +154,47 @@ class IHumbak_Products_Handler {
     }
 
     /**
+     * Sanitize price value
+     */
+    private function sanitize_price( $price ) {
+        // Remove any non-numeric characters except decimal point
+        $price = preg_replace( '/[^0-9.]/', '', $price );
+        
+        // Validate that it's a valid number
+        if ( ! is_numeric( $price ) ) {
+            return false;
+        }
+
+        // Convert to float and ensure it's not negative
+        $price = floatval( $price );
+        if ( $price < 0 ) {
+            return false;
+        }
+
+        // Round to 2 decimal places
+        return round( $price, 2 );
+    }
+
+    /**
      * Bulk update prices
      */
     public function bulk_update_prices( $filters, $change_type, $change_value, $price_type ) {
+        // Validate inputs
+        if ( ! in_array( $change_type, array( 'percentage', 'fixed' ), true ) ) {
+            return false;
+        }
+
+        if ( ! in_array( $price_type, array( 'regular', 'sale' ), true ) ) {
+            return false;
+        }
+
+        // Validate change value is numeric
+        if ( ! is_numeric( $change_value ) ) {
+            return false;
+        }
+
+        $change_value = floatval( $change_value );
+
         // Get all products matching filters
         $filters['per_page'] = -1;
         $result = $this->get_products( $filters );
@@ -165,6 +220,11 @@ class IHumbak_Products_Handler {
                 if ( empty( $current_price ) ) {
                     $current_price = floatval( $product->get_regular_price() );
                 }
+            }
+
+            // Skip if current price is 0 or invalid
+            if ( $current_price <= 0 ) {
+                continue;
             }
 
             // Calculate new price
