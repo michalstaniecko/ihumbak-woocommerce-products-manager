@@ -152,10 +152,10 @@
                 /**
                  * Load more products
                  */
-                loadMore() {
+                async loadMore() {
                     if (this.hasMore && !this.loadingMore) {
                         this.filters.page++;
-                        this.loadProducts(true);
+                        await this.loadProducts(true);
                     }
                 },
 
