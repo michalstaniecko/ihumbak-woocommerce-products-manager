@@ -1,0 +1,86 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get version from plugin file
+        id: get_version
+        run: |
+          VERSION=$(grep -oP "Version:\s*\K[\d\.]+" ihumbak-woocommerce-products-manager.php)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Plugin version: $VERSION"
+      
+      - name: Create plugin archive
+        run: |
+          # Create a temporary directory for the plugin
+          mkdir -p /tmp/plugin-build
+          
+          # Copy plugin files (excluding development files)
+          rsync -av \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='*.log' \
+            --exclude='*.tmp' \
+            --exclude='*.bak' \
+            --exclude='.DS_Store' \
+            --exclude='.idea' \
+            --exclude='.vscode' \
+            --exclude='dist' \
+            --exclude='build' \
+            ./ /tmp/plugin-build/ihumbak-woocommerce-products-manager/
+          
+          # Create ZIP archive
+          cd /tmp/plugin-build
+          zip -r ihumbak-woocommerce-products-manager.zip ihumbak-woocommerce-products-manager
+          
+          # Move archive to workspace
+          mv ihumbak-woocommerce-products-manager.zip $GITHUB_WORKSPACE/
+          
+          echo "Archive created: ihumbak-woocommerce-products-manager.zip"
+          ls -lh $GITHUB_WORKSPACE/ihumbak-woocommerce-products-manager.zip
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ihumbak-woocommerce-products-manager.zip
+          name: Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## iHumbak WooCommerce Products Manager v${{ steps.get_version.outputs.version }}
+            
+            Download the plugin archive below and install it on your WordPress site.
+            
+            ### Installation
+            1. Download `ihumbak-woocommerce-products-manager.zip`
+            2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
+            3. Choose the downloaded ZIP file and click "Install Now"
+            4. Activate the plugin
+            
+            ### Requirements
+            - WordPress 5.0 or higher
+            - WooCommerce 3.0 or higher
+            - PHP 7.2 or higher
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload artifact for non-tag pushes
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ihumbak-woocommerce-products-manager-${{ steps.get_version.outputs.version }}
+          path: ihumbak-woocommerce-products-manager.zip
+          retention-days: 30
