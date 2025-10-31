@@ -73,17 +73,19 @@ This URL will automatically redirect to the latest version's ZIP file.
 
 ## What's Included in the ZIP
 
-The workflow creates a clean archive that includes:
+The workflow creates a clean archive using `git archive`, which automatically respects `.gitattributes` export rules.
+
+**Included:**
 - All PHP plugin files
 - CSS and JavaScript assets
 - README.md
 
-The archive excludes development files:
-- `.git` and `.github` directories
-- `node_modules`
-- IDE configuration files (`.vscode`, `.idea`)
-- Temporary files (`*.log`, `*.tmp`, `*.bak`)
-- Build directories
+**Excluded (via .gitattributes):**
+- `.git` and `.github` directories (workflows and actions)
+- `.gitignore` file
+- `.gitattributes` file
+
+This ensures a clean, production-ready plugin archive.
 
 ## Testing Builds Without Creating a Release
 

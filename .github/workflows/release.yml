@@ -18,28 +18,17 @@ jobs:
       - name: Get version from plugin file
         id: get_version
         run: |
-          VERSION=$(grep -oP "Version:\s*\K[\d\.]+" ihumbak-woocommerce-products-manager.php)
+          VERSION=$(grep -oP "Version:\s*\K\d+(?:\.\d+)*" ihumbak-woocommerce-products-manager.php)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Plugin version: $VERSION"
       
       - name: Create plugin archive
         run: |
           # Create a temporary directory for the plugin
-          mkdir -p /tmp/plugin-build
+          mkdir -p /tmp/plugin-build/ihumbak-woocommerce-products-manager
           
-          # Copy plugin files (excluding development files)
-          rsync -av \
-            --exclude='.git*' \
-            --exclude='node_modules' \
-            --exclude='*.log' \
-            --exclude='*.tmp' \
-            --exclude='*.bak' \
-            --exclude='.DS_Store' \
-            --exclude='.idea' \
-            --exclude='.vscode' \
-            --exclude='dist' \
-            --exclude='build' \
-            ./ /tmp/plugin-build/ihumbak-woocommerce-products-manager/
+          # Use git archive to export clean files (respects .gitattributes)
+          git archive HEAD | tar -x -C /tmp/plugin-build/ihumbak-woocommerce-products-manager
           
           # Create ZIP archive
           cd /tmp/plugin-build
@@ -52,7 +41,7 @@ jobs:
           ls -lh $GITHUB_WORKSPACE/ihumbak-woocommerce-products-manager.zip
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ihumbak-woocommerce-products-manager.zip
