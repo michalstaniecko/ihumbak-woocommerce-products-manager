@@ -11,6 +11,10 @@ Advanced WooCommerce products management plugin with filtering and bulk price ed
   - Order by (Name, Date, ID)
   - Sort direction (Ascending/Descending)
 - **Asynchronous Loading**: Fast, responsive interface built with Vue.js 3
+- **Efficient Product Loading**: 
+  - Load More functionality for handling large product catalogs (20k+ products)
+  - Shows loaded vs total product count
+  - Request cancellation to prevent conflicts
 - **Price Management**:
   - Edit regular prices
   - Edit sale prices
@@ -19,7 +23,7 @@ Advanced WooCommerce products management plugin with filtering and bulk price ed
 - **Bulk Price Operations**:
   - Percentage-based changes (e.g., +10%, -5%)
   - Fixed amount changes
-  - Apply to all filtered products
+  - Apply to all filtered products (including non-visible ones)
 
 ## Requirements
 
@@ -44,6 +48,15 @@ Advanced WooCommerce products management plugin with filtering and bulk price ed
    - **Order by**: Choose how to sort products
    - **Order**: Choose ascending or descending order
 
+### Working with Large Product Catalogs
+
+The plugin is optimized to handle shops with thousands of products:
+
+1. Products are loaded in batches (50 at a time by default)
+2. Use the **Load More Products** button to load additional products
+3. The interface shows how many products are loaded vs. the total matching your filters
+4. Bulk operations work on ALL filtered products, not just the ones currently displayed
+
 ### Editing Individual Product Prices
 
 1. Find the product in the table
@@ -60,7 +73,7 @@ Advanced WooCommerce products management plugin with filtering and bulk price ed
 3. Click **Apply to Filtered Products**
 4. Confirm the action
 
-The bulk update will apply to all products matching your current filters.
+**Important**: The bulk update will apply to ALL products matching your current filters, not just the ones currently visible on the screen. This ensures consistent updates across your entire product catalog.
 
 ## Development
 
@@ -90,6 +103,14 @@ Michał Stanięcko
 - GitHub: [@michalstaniecko](https://github.com/michalstaniecko)
 
 ## Changelog
+
+### 1.1.0
+- Added "Load More" functionality for handling large product catalogs (20k+ products)
+- Improved performance with request cancellation and debouncing
+- Increased default products per page from 20 to 50
+- Enhanced bulk update confirmation message to clarify it affects all filtered products
+- Added product count display (loaded vs total)
+- Updated UI to show loading states for "Load More" button
 
 ### 1.0.0
 - Initial release

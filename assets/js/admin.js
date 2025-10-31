@@ -27,7 +27,7 @@
                         orderby: 'title',
                         order: 'ASC',
                         page: 1,
-                        per_page: 20
+                        per_page: 50
                     },
                     bulkEdit: {
                         priceType: 'regular',
@@ -40,11 +40,14 @@
                         currentPage: 1
                     },
                     loading: false,
+                    loadingMore: false,
+                    hasMore: false,
                     message: {
                         text: '',
                         type: 'success'
                     },
-                    searchTimeout: null
+                    searchTimeout: null,
+                    requestController: null
                 };
             },
             mounted() {
@@ -79,8 +82,18 @@
                 /**
                  * Load products
                  */
-                async loadProducts() {
-                    this.loading = true;
+                async loadProducts(append = false) {
+                    // Cancel any pending request
+                    if (this.requestController) {
+                        this.requestController.abort();
+                    }
+                    this.requestController = new AbortController();
+
+                    if (append) {
+                        this.loadingMore = true;
+                    } else {
+                        this.loading = true;
+                    }
 
                     try {
                         const formData = new FormData();
@@ -94,24 +107,34 @@
 
                         const response = await fetch(ihumbakWpm.ajaxUrl, {
                             method: 'POST',
-                            body: formData
+                            body: formData,
+                            signal: this.requestController.signal
                         });
 
                         const data = await response.json();
 
                         if (data.success) {
-                            this.products = data.data.products;
+                            if (append) {
+                                this.products = [...this.products, ...data.data.products];
+                            } else {
+                                this.products = data.data.products;
+                            }
                             this.pagination.total = data.data.total;
                             this.pagination.pages = data.data.pages;
                             this.pagination.currentPage = data.data.current_page;
+                            this.hasMore = this.pagination.currentPage < this.pagination.pages;
                         } else {
                             this.showMessage(data.data.message || ihumbakWpm.i18n.error, 'error');
                         }
                     } catch (error) {
-                        console.error('Error loading products:', error);
-                        this.showMessage(ihumbakWpm.i18n.error, 'error');
+                        if (error.name !== 'AbortError') {
+                            console.error('Error loading products:', error);
+                            this.showMessage(ihumbakWpm.i18n.error, 'error');
+                        }
                     } finally {
                         this.loading = false;
+                        this.loadingMore = false;
+                        this.requestController = null;
                     }
                 },
 
@@ -122,19 +145,37 @@
                     clearTimeout(this.searchTimeout);
                     this.searchTimeout = setTimeout(() => {
                         this.filters.page = 1;
-                        this.loadProducts();
+                        this.loadProducts(false);
                     }, 500);
                 },
 
                 /**
-                 * Change page
+                 * Load more products
+                 */
+                loadMore() {
+                    if (this.hasMore && !this.loadingMore) {
+                        this.filters.page++;
+                        this.loadProducts(true);
+                    }
+                },
+
+                /**
+                 * Reset filters and reload
+                 */
+                resetAndReload() {
+                    this.filters.page = 1;
+                    this.loadProducts(false);
+                },
+
+                /**
+                 * Change page (deprecated - kept for backward compatibility)
                  */
                 changePage(page) {
                     if (page < 1 || page > this.pagination.pages) {
                         return;
                     }
                     this.filters.page = page;
-                    this.loadProducts();
+                    this.loadProducts(false);
                 },
 
                 /**
@@ -158,7 +199,7 @@
 
                         if (data.success) {
                             this.showMessage(ihumbakWpm.i18n.success, 'success');
-                            this.loadProducts();
+                            this.resetAndReload();
                         } else {
                             this.showMessage(data.data.message || ihumbakWpm.i18n.error, 'error');
                         }
@@ -207,7 +248,7 @@
 
                         if (data.success) {
                             this.showMessage(data.data.message, 'success');
-                            this.loadProducts();
+                            this.resetAndReload();
                         } else {
                             this.showMessage(data.data.message || ihumbakWpm.i18n.error, 'error');
                         }
