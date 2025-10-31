@@ -92,6 +92,18 @@
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
 
+.ihumbak-products-info {
+    padding: 15px 20px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.ihumbak-products-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #50575e;
+}
+
 .ihumbak-products-table table {
     margin-bottom: 0;
 }
@@ -165,6 +177,41 @@
 .ihumbak-pagination .pagination-info {
     font-size: 14px;
     color: #50575e;
+}
+
+/* Load More Section */
+.ihumbak-load-more {
+    text-align: center;
+    padding: 25px;
+    background: #f6f7f7;
+    border-top: 1px solid #ccd0d4;
+}
+
+.ihumbak-load-more .button-large {
+    min-width: 200px;
+    height: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.ihumbak-load-more .load-more-info {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: #646970;
+}
+
+.ihumbak-all-loaded {
+    text-align: center;
+    padding: 20px;
+    background: #f6f7f7;
+    border-top: 1px solid #ccd0d4;
+}
+
+.ihumbak-all-loaded p {
+    margin: 0;
+    font-size: 14px;
+    color: #2c7a2c;
+    font-weight: 600;
 }
 
 /* No Products */

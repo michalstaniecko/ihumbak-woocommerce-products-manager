@@ -173,7 +173,7 @@ class IHumbak_WooCommerce_Products_Manager {
                     'noProducts' => __( 'No products found', 'ihumbak-wpm' ),
                     'error' => __( 'An error occurred', 'ihumbak-wpm' ),
                     'success' => __( 'Changes saved successfully', 'ihumbak-wpm' ),
-                    'confirmBulk' => __( 'Are you sure you want to update prices for all filtered products?', 'ihumbak-wpm' ),
+                    'confirmBulk' => __( 'Are you sure you want to update prices for all filtered products? This will update all products matching your current filters, not just the ones currently displayed.', 'ihumbak-wpm' ),
                 ),
             )
         );

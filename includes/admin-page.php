@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="filter-group">
                     <label for="category-select"><?php esc_html_e( 'Category:', 'ihumbak-wpm' ); ?></label>
-                    <select id="category-select" v-model="filters.category" @change="loadProducts">
+                    <select id="category-select" v-model="filters.category" @change="resetAndReload">
                         <option value="0"><?php esc_html_e( 'All Categories', 'ihumbak-wpm' ); ?></option>
                         <option v-for="cat in filterOptions.categories" :key="cat.id" :value="cat.id">
                             {{ cat.name }} ({{ cat.count }})
@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="filter-group">
                     <label for="orderby-select"><?php esc_html_e( 'Order by:', 'ihumbak-wpm' ); ?></label>
-                    <select id="orderby-select" v-model="filters.orderby" @change="loadProducts">
+                    <select id="orderby-select" v-model="filters.orderby" @change="resetAndReload">
                         <option value="title"><?php esc_html_e( 'Name', 'ihumbak-wpm' ); ?></option>
                         <option value="date"><?php esc_html_e( 'Date', 'ihumbak-wpm' ); ?></option>
                         <option value="ID"><?php esc_html_e( 'ID', 'ihumbak-wpm' ); ?></option>
@@ -50,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="filter-group">
                     <label for="order-select"><?php esc_html_e( 'Order:', 'ihumbak-wpm' ); ?></label>
-                    <select id="order-select" v-model="filters.order" @change="loadProducts">
+                    <select id="order-select" v-model="filters.order" @change="resetAndReload">
                         <option value="ASC"><?php esc_html_e( 'Ascending', 'ihumbak-wpm' ); ?></option>
                         <option value="DESC"><?php esc_html_e( 'Descending', 'ihumbak-wpm' ); ?></option>
                     </select>
@@ -111,6 +111,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <!-- Products Table -->
         <div v-else-if="products.length > 0" class="ihumbak-products-table">
+            <div class="ihumbak-products-info">
+                <p>
+                    <?php esc_html_e( 'Showing', 'ihumbak-wpm' ); ?> 
+                    <strong>{{ products.length }}</strong> 
+                    <?php esc_html_e( 'of', 'ihumbak-wpm' ); ?> 
+                    <strong>{{ pagination.total }}</strong> 
+                    <?php esc_html_e( 'products', 'ihumbak-wpm' ); ?>
+                </p>
+            </div>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -176,29 +185,28 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </tbody>
             </table>
 
-            <!-- Pagination -->
-            <div class="ihumbak-pagination" v-if="pagination.pages > 1">
+            <!-- Load More Button -->
+            <div class="ihumbak-load-more" v-if="hasMore">
                 <button 
-                    class="button" 
-                    @click="changePage(pagination.currentPage - 1)"
-                    :disabled="pagination.currentPage <= 1"
+                    class="button button-primary button-large" 
+                    @click="loadMore"
+                    :disabled="loadingMore"
                 >
-                    <?php esc_html_e( 'Previous', 'ihumbak-wpm' ); ?>
+                    <span v-if="!loadingMore"><?php esc_html_e( 'Load More Products', 'ihumbak-wpm' ); ?></span>
+                    <span v-else>
+                        <span class="spinner is-active" style="float: none; margin: 0 5px 0 0;"></span>
+                        <?php esc_html_e( 'Loading...', 'ihumbak-wpm' ); ?>
+                    </span>
                 </button>
-                
-                <span class="pagination-info">
-                    <?php esc_html_e( 'Page', 'ihumbak-wpm' ); ?> 
-                    {{ pagination.currentPage }} <?php esc_html_e( 'of', 'ihumbak-wpm' ); ?> {{ pagination.pages }}
-                    (<?php esc_html_e( 'Total:', 'ihumbak-wpm' ); ?> {{ pagination.total }})
-                </span>
-                
-                <button 
-                    class="button" 
-                    @click="changePage(pagination.currentPage + 1)"
-                    :disabled="pagination.currentPage >= pagination.pages"
-                >
-                    <?php esc_html_e( 'Next', 'ihumbak-wpm' ); ?>
-                </button>
+                <p class="load-more-info">
+                    <?php esc_html_e( 'Loaded', 'ihumbak-wpm' ); ?> 
+                    {{ products.length }} / {{ pagination.total }}
+                </p>
+            </div>
+
+            <!-- All Products Loaded Message -->
+            <div class="ihumbak-all-loaded" v-else>
+                <p><?php esc_html_e( 'All products loaded', 'ihumbak-wpm' ); ?></p>
             </div>
         </div>
 
