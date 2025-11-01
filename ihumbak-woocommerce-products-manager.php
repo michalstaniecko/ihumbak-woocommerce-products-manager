@@ -51,7 +51,7 @@ class IHumbak_WooCommerce_Products_Manager {
      * Constructor
      */
     private function __construct() {
-        add_action( 'plugins_loaded', array( $this, 'init' ) );
+        $this->init();
     }
 
     /**
